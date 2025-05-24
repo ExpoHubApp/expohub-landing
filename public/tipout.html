@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tipout Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen flex items-center justify-center p-6">
+  <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-2xl">
+    <h1 class="text-2xl font-bold mb-4">Tipout Calculator</h1>
+    <form id="tipForm" class="grid grid-cols-1 gap-4">
+      <input type="number" name="food" step="0.01" placeholder="Food Sales ($)" class="border p-2 rounded" required>
+      <input type="number" name="naBev" step="0.01" placeholder="Non-Alcoholic Beverage Sales ($)" class="border p-2 rounded" required>
+      <input type="number" name="liquor" step="0.01" placeholder="Liquor Sales ($)" class="border p-2 rounded" required>
+      <input type="number" name="beer" step="0.01" placeholder="Beer Sales ($)" class="border p-2 rounded" required>
+      <input type="number" name="wine" step="0.01" placeholder="Wine Sales ($)" class="border p-2 rounded" required>
+      <input type="number" name="ccTips" step="0.01" placeholder="Credit Card Tips ($)" class="border p-2 rounded" required>
+
+      <div class="grid grid-cols-2 gap-4">
+        <label class="flex items-center gap-2">
+          <input type="checkbox" name="host" checked>
+          Host Tipout
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" name="busser" checked>
+          Busser Tipout
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" name="runner" checked>
+          Runner Tipout
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" name="expo" checked>
+          Expo Tipout
+        </label>
+      </div>
+
+      <button type="submit" class="bg-blue-600 text-white p-2 rounded">Calculate</button>
+    </form>
+
+    <div id="results" class="mt-6 hidden bg-gray-50 p-4 rounded shadow"></div>
+  </div>
+
+  <script>
+    document.getElementById('tipForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const form = Object.fromEntries(new FormData(e.target));
+      const food = parseFloat(form.food) || 0;
+      const naBev = parseFloat(form.naBev) || 0;
+      const liquor = parseFloat(form.liquor) || 0;
+      const beer = parseFloat(form.beer) || 0;
+      const wine = parseFloat(form.wine) || 0;
+      const ccTips = parseFloat(form.ccTips) || 0;
+
+      const baseSales = food + naBev;
+      const alcoholSales = liquor + beer + wine;
+      const supportRate = 0.00075;
+      const barTipout = alcoholSales * 0.10;
+
+      const hostTipout = form.host ? baseSales * supportRate : 0;
+      const busserTipout = form.busser ? baseSales * supportRate : 0;
+      const runnerTipout = form.runner ? baseSales * supportRate : 0;
+      const expoTipout = form.expo ? baseSales * supportRate : 0;
+
+      const totalTipout = barTipout + hostTipout + busserTipout + runnerTipout + expoTipout;
+      const netTips = ccTips - totalTipout;
+
+      const output = `
+        <h2 class="text-xl font-semibold mb-2">Results</h2>
+        <ul class="space-y-1">
+          <li>Bar Tipout: $${barTipout.toFixed(2)}</li>
+          ${form.host ? `<li>Host Tipout: $${hostTipout.toFixed(2)}</li>` : ''}
+          ${form.busser ? `<li>Busser Tipout: $${busserTipout.toFixed(2)}</li>` : ''}
+          ${form.runner ? `<li>Runner Tipout: $${runnerTipout.toFixed(2)}</li>` : ''}
+          ${form.expo ? `<li>Expo Tipout: $${expoTipout.toFixed(2)}</li>` : ''}
+          <li class="font-bold mt-2">Net Tips: $${netTips.toFixed(2)}</li>
+        </ul>
+      `;
+
+      const results = document.getElementById('results');
+      results.innerHTML = output;
+      results.classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
